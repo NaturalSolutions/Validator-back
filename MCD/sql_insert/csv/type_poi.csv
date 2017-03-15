@@ -1,0 +1,11 @@
+id;general_type_id;name;name_fr;name_it;name_es;name_de;name_en
+1;3;park_garden;parc et jardin;;;;park and garden
+2;3;botanical_garden;jardin botanique;;;;botanical garden
+3;2;remarkable_tree;arbre remarquable;;;;remarkable tree
+4;7;shared_garden;jardin partagé;;;;shared garden
+5;7;pocket_garden;jardin de poche;;;;pocket garden
+6;5;revegetated_street;rue végétalisée;;;;revegetated street
+7;1;avenue_tree;avenue arborée;;;;avenue tree
+8;8;landscaping;aménagement paysager;;;;landscaping
+9;6;wild_plant;plante sauvage;;;;wild plant
+10;4;strange_place;lieu insolite;;;;strange place

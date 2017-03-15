@@ -1,0 +1,7 @@
+*.pyc
+*~
+.config.cfg
+.DS_Store
+.vscode
+
+config.cfg

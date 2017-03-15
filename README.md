@@ -13,6 +13,9 @@ postgres doit etre installé
 pip3 install flask
 pip3 install psycopg2
 pip3 install Flask-SQLAlchemy
+pip3 install flask_script
+pip3 install flask_migrate
+pip3 install flask_cors
 
 #configuration
 - Modifier le fichier de configuration pour accéder à la base de données :

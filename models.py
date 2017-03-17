@@ -139,6 +139,3 @@ class Awards(db.Model):
     typeAward = db.Column(db.String(50), nullable=False)
     label = db.Column(db.String(25), nullable=False)
 
-
-db.create_all()
-db.session.commit()

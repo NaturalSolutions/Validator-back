@@ -1,8 +1,4 @@
-from __main__ import app
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy(app)
-
+from app import db
 
 
 class Contributions(db.Model):
@@ -10,7 +6,7 @@ class Contributions(db.Model):
     status = db.Column(db.String(35))
 
     idpoi = db.Column(db.Integer, db.ForeignKey(
-        'pois.id'), primary_key=True)
+        'pois.id'), primary_key=True, autoincrement=True)
     idfield = db.Column(db.Integer, db.ForeignKey(
         'fields.id'), primary_key=True)
     idvalue = db.Column(db.Integer, db.ForeignKey(
@@ -23,10 +19,10 @@ class Contributions(db.Model):
     values = db.relationship("Values", backref=db.backref(
         "contributions", cascade="all, delete-orphan"))
 
-    #def __init__(self, pois=None, fields=None, values=None):
-    #    self.pois = pois
-    #    self.fields = fields
-    #    self.values = values
+    def __init__(self, pois=None, fields=None, values=None):
+        self.pois = pois
+        self.fields = fields
+        self.values = values
 
     def __repr__(self):
         return '<Contributions {}>'.format(self.pois.id + " " + self.fields.name + " " + self.values.value)
@@ -81,7 +77,7 @@ class Typespois(db.Model):
 
 
 class Pois(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tour_id = db.Column(db.Integer)
     typespois_id = db.Column(db.Integer, db.ForeignKey('typespois.id'), nullable=False)
 

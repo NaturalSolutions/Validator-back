@@ -1,5 +1,5 @@
-from . import routes
-import models
+from flask import Flask, request, jsonify
+from .__init__ import routes
 
 '''@routes.route('/api/versions/poi/<int:idp>', methods=['GET'])
 def returnVersionsOfOnePoi(idp):

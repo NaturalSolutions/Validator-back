@@ -1,29 +1,22 @@
 # -----MODELS AND CONFIG---------
 
 from flask import Flask, request, jsonify
-from flask_script import Manager
-from flask_migrate import Migrate, MigrateCommand
-from flask_cors import CORS, cross_origin
+from flask_sqlalchemy import SQLAlchemy
+
 
 app = Flask(__name__)
 CORS(app)
 app.config.from_pyfile('config.cfg')
+db = SQLAlchemy(app)
 
-from models import db
+import models, routes
 
-migrate = Migrate(app, db)
-
-manager = Manager(app)
-manager.add_command('db', MigrateCommand)
 
 # -----ROUTES---------
-from routes import *
-app.register_blueprint(routes)
-
-
-
+from routes.__init__ import *
+app.register_blueprint(routes) #enregistrer les routes definies dans le dossier toutes au sein de l'application
+								# routes = nom de l'instance de BluePrint dans routes/__init__.py
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
-    manager.run()
+    app.run(debug=True)

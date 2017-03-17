@@ -18,6 +18,4 @@ app.register_blueprint(routes) #enregistrer les routes definies dans le dossier 
 
 
 if __name__ == "__main__":
-    app.run(debug=True) 
-    db.create_all()
-    db.session.commit()
+    app.run(debug=True)

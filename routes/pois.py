@@ -3,6 +3,7 @@ from .__init__ import routes
 import models # par defaut python cherche dans le dossier d'où est lancer le script d'entrée
 from app import db
 
+
 @routes.route('/api/pois', methods=['GET'])
 def returnAllPois():
 	allAsso = models.Contributions.query.all()
@@ -85,19 +86,32 @@ def returnOnepoi(idp):
 	malistFormatBon.append(dictionnaire)
 	return jsonify({'poi': malistFormatBon})
 
-
-
 @routes.route('/api/pois', methods=['POST'])
 def addOnePoi():
-    currentPoi = models.Pois(tour_id=request.json['tour_id'], typespois_id=request.json['typespois_id']) #id de la base extérieure qui crée les itinéraires
+    colRequired = models.Pois.getColRequired()
+    colOptional = models.Pois.getColOptional()
+    requiredVal = {}
+    optionalVal = {}
+    nbFind = 0
+    nbToFind = len(colRequired)
+
+    requiredVal['tour_id'] = request.json['tour_id']
+    requiredVal['typespois_id'] = request.json['typespois_id']
+    optionalVal['version'] = 1
+
+    currentPoi = models.Pois(requiredVal, optionalVal)
+
+    # crée les itinéraires
     for key, value in request.json.items():
-    	if key not in ['tour_id', 'typespois_id']:
+        if key not in ['tour_id', 'typespois_id']:
             currentField = models.Fields(pos=1, name=key)
             currentValue = models.Values(value=value)
-            currentasso = models.Contributions(currentPoi, currentField, currentValue)
+            currentasso = models.Contributions(
+                currentPoi, currentField, currentValue)
             db.session.add(currentasso)
             db.session.commit()
     print(dir(currentPoi))
-    return jsonify({'Poi' : currentPoi.id}), 201
+    return jsonify({'Poi': currentPoi.id}), 201
 
-#lancer requete post : http  POST http://localhost:5000/api/pois typespois_id=1 tour_id=11 desc=tatapouetpouet
+# lancer requete post : http  POST http://localhost:5000/api/pois
+# typespois_id=1 tour_id=11 desc=tatapouetpouet

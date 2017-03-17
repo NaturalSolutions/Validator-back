@@ -2,14 +2,14 @@
 Création d'une API REST
 
 #creation d'environement python3 pour Flask [http://flask.pocoo.org/docs/0.12/installation/]
--213.80.Cloner le dépôt
+- Cloner le dépôt
 > git clone 
 > cd Validator-back
 
--Installer Virtualvenv
+- Installer Virtualvenv
 > sudo pip3 install virtualenv
 
--Créer un environnement python3
+- Créer un environnement python3
 > . venv/bin/activate
 
 #installation

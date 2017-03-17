@@ -1,8 +1,4 @@
-from __main__ import app
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy(app)
-
+from app import db
 
 class Contributions(db.Model):
     version = db.Column(db.Integer)
@@ -210,7 +206,3 @@ class Awards(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     typeAward = db.Column(db.String(50), nullable=False)
     label = db.Column(db.String(25), nullable=False)
-
-
-db.create_all()
-db.session.commit()

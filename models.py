@@ -4,13 +4,12 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy(app)
 
 
-
 class Contributions(db.Model):
     version = db.Column(db.Integer)
     status = db.Column(db.String(35))
 
     idpoi = db.Column(db.Integer, db.ForeignKey(
-        'pois.id'), primary_key=True, autoincrement=True)
+        'pois.id'), primary_key=True)
     idfield = db.Column(db.Integer, db.ForeignKey(
         'fields.id'), primary_key=True)
     idvalue = db.Column(db.Integer, db.ForeignKey(
@@ -31,6 +30,7 @@ class Contributions(db.Model):
     def __repr__(self):
         return '<Contributions {}>'.format(self.pois.id + " " + self.fields.name + " " + self.values.value)
 
+
 class Comments(db.Model):
     message = db.Column(db.Text)
     title = db.Column(db.String(50))
@@ -44,6 +44,7 @@ class Comments(db.Model):
         "comments", cascade="all, delete-orphan"))
     pois = db.relationship("Pois", backref=db.backref(
         "comments", cascade="all, delete-orphan"))
+
 
 class Rewards(db.Model):
     idaward = db.Column(db.Integer, db.ForeignKey(
@@ -65,7 +66,8 @@ class Generaltypes(db.Model):
     name_es = db.Column(db.String(80))
     name_de = db.Column(db.String(80))
     name_it = db.Column(db.String(80))
-    typespoi = db.relationship('Typespois', backref='generaltypes', lazy='dynamic')
+    typespoi = db.relationship(
+        'Typespois', backref='generaltypes', lazy='dynamic')
 
 
 class Typespois(db.Model):
@@ -76,23 +78,53 @@ class Typespois(db.Model):
     name_es = db.Column(db.String(80))
     name_de = db.Column(db.String(80))
     name_it = db.Column(db.String(80))
-    generaltypes_id = db.Column(db.Integer, db.ForeignKey('generaltypes.id'), nullable=False)
+    generaltypes_id = db.Column(db.Integer, db.ForeignKey(
+        'generaltypes.id'), nullable=False)
     pois = db.relationship('Pois', backref='typespois', lazy='dynamic')
 
 
 class Pois(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    tour_id = db.Column(db.Integer)
-    typespois_id = db.Column(db.Integer, db.ForeignKey('typespois.id'), nullable=False)
-
+    id = db.Column(db.Integer, primary_key=True)
+    tour_id = db.Column(db.Integer, nullable=False)
+    typespois_id = db.Column(db.Integer, db.ForeignKey(
+        'typespois.id'), nullable=False)
 
     fields = db.relationship('Fields', secondary='contributions',
-                             backref=db.backref('pois', lazy='dynamic'))
+                             viewonly=True)
     values = db.relationship('Values', secondary='contributions',
-                             backref=db.backref('pois', lazy='dynamic'))
+                             viewonly=True)
+
+    def __init__(self, required, optional):
+        self.tour_id = required['tour_id']
+        self.typespois_id = required['typespois_id']
+        if 'values' in optional:
+            self.values = optional['values']
+        if 'fields' in optional:
+            self.fields = required['fields']
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    def getCol():
+        data = []
+        for c in Pois.__table__.columns:
+            if c.name not in ['id']:
+                data.append(c.name)
+        return data
+
+    def getColRequired():
+        data = []
+        for c in Pois.__table__.columns:
+            if c.name not in ['id', 'values', 'fields'] and not c.nullable:
+                data.append(c.name)
+        return data
+
+    def getColOptional():
+        data = []
+        for c in Pois.__table__.columns:
+            if c.name not in ['id'] and c.nullable:
+                data.append(c.name)
+        return data
 
 
 class Types(db.Model):
@@ -109,12 +141,46 @@ class Fields(db.Model):
     required = db.Column(db.Boolean)
     types_id = db.Column(db.Integer, db.ForeignKey('types.id'))
 
+    pois = db.relationship(
+        'Pois',
+        secondary='contributions',
+        viewonly=True
+    )
+    values = db.relationship(
+        'Values',
+        secondary='contributions',
+        viewonly=True
+    )
+
+    def __init__(self, name, pos):
+        self.name = name
+        self.pos = pos
+        self.pois = []
+        self.values = []
+
 
 class Values(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.Text)
     createddate = db.Column(db.Date)
     users_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    fields = db.relationship(
+        'Fields',
+        secondary='contributions',
+		viewonly=True
+    )
+    pois = db.relationship(
+        'Pois',
+        secondary='contributions',
+		viewonly=True
+    )
+
+    def __init__(self, value):
+        self.value = value
+        self.fields = []
+        self.pois = []
+
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -132,11 +198,13 @@ class Categories(db.Model):
     name = db.Column(db.String(50), nullable=False, unique=True)
     users = db.relationship('Users', backref='categories', lazy='dynamic')
 
+
 class Accounts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.String(50), nullable=False)
     users = db.relationship('Users', backref='accounts', lazy='dynamic')
+
 
 class Awards(db.Model):
     id = db.Column(db.Integer, primary_key=True)

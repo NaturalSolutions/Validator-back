@@ -97,13 +97,10 @@ def addOnePoi():
 
     requiredVal['tour_id'] = request.json['tour_id']
     requiredVal['typespois_id'] = request.json['typespois_id']
-
     optionalVal['version'] = 1
 
     currentPoi = models.Pois(requiredVal, optionalVal)
 
-    # currentPoi = models.Pois(tour_id=request.json['tour_id'],
-    # typespois_id=request.json['typespois_id']) #id de la base extérieure qui
     # crée les itinéraires
     for key, value in request.json.items():
         if key not in ['tour_id', 'typespois_id']:

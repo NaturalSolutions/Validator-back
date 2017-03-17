@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from .__init__ import routes
+import models
 
 '''@routes.route('/api/versions/poi/<int:idp>', methods=['GET'])
 def returnVersionsOfOnePoi(idp):

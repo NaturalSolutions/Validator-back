@@ -1,5 +1,9 @@
 from flask import Flask, request, jsonify
 from .__init__ import routes
+import models
+from app import db
+
+
 
 @routes.route('/api/contributions', methods=['GET'])
 def returnAllContributions():

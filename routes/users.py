@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from .__init__ import routes
-
+import models
+from app import db
 
 @routes.route('/api/users', methods=['GET'])
 def returnAllUsers():

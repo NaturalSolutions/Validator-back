@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from .__init__ import routes
-
+import models # par defaut python cherche dans le dossier d'où est lancer le script d'entrée
 from app import db
 
 @routes.route('/api/pois', methods=['GET'])

@@ -5,11 +5,10 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 app = Flask(__name__)
-CORS(app)
 app.config.from_pyfile('config.cfg')
 db = SQLAlchemy(app)
 
-import models, routes
+import routes
 
 
 # -----ROUTES---------

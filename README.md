@@ -1,12 +1,16 @@
 # restFulFlask
 Création d'une API REST
 
-#creation d'environement python3
-mkdir appRestFulFlask
-cd appRestFulFlask
-export VENV=~/appRestFulFlask/env
-python3 -m venv $VENV
-source env/bin/activate
+#creation d'environement python3 pour Flask [http://flask.pocoo.org/docs/0.12/installation/]
+*Cloner le dépôt
+> git clone 
+> cd Validator-back
+
+*Installer Virtualvenv
+> sudo pip3 install virtualenv
+
+*Créer un environnement python3
+> . venv/bin/activate
 
 #installation
 postgres doit etre installé

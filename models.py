@@ -18,13 +18,15 @@ class Contributions(db.Model):
     values = db.relationship("Values", backref=db.backref(
         "contributions", cascade="all, delete-orphan"))
 
-    def __init__(self, pois=None, fields=None, values=None):
+    def __init__(self, version=None, status=None, pois=None, fields=None, values=None):
+        self.version = version
+        self.status = status
         self.pois = pois
         self.fields = fields
         self.values = values
 
     def __repr__(self):
-        return '<Contributions {}>'.format(self.pois.id + " " + self.fields.name + " " + self.values.value)
+        return '<Contributions {}>'.format(self.pois.version + " " +self.pois.status + " " +self.pois.id + " " + self.fields.name + " " + self.values.value)
 
 
 class Comments(db.Model):

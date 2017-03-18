@@ -2115,3 +2115,7 @@ INSERT INTO public.values(id, value, createddate, users_id) VALUES (989, '{"desc
 INSERT INTO public.contributions(version, status, idfield, idvalue, idpoi) VALUES (1,'in progress', 22, 989, 110);
 INSERT INTO public.values(id, value, createddate, users_id) VALUES (990, '{"withchild":"1"}',  '01/01/2014' , 1 );
 INSERT INTO public.contributions(version, status, idfield, idvalue, idpoi) VALUES (1,'in progress', 28, 990, 110);
+
+SELECT setval('values_id_seq', (SELECT max(id) FROM public.values));
+SELECT setval('pois_id_seq', (SELECT max(id) FROM public.pois));
+SELECT setval('fields_id_seq', (SELECT max(id) FROM public.fields));

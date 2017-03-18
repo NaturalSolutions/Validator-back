@@ -1,7 +1,8 @@
 # restFulFlask
 Création d'une API REST
 
-#creation d'environement python3 pour Flask [http://flask.pocoo.org/docs/0.12/installation/]
+## Création d'un environement python3 
+Flask [http://flask.pocoo.org/docs/0.12/installation/]
 - Cloner le dépôt
 > git clone 
 > cd Validator-back
@@ -12,8 +13,8 @@ Création d'une API REST
 - Créer un environnement python3
 > . venv/bin/activate
 
-#installation
-postgres doit etre installé
+## Installation des dépendances
+postgreSQL doit être installé
 > pip3 install flask
 > pip3 install psycopg2
 > pip3 install Flask-SQLAlchemy
@@ -21,7 +22,7 @@ postgres doit etre installé
 > pip3 install flask_migrate
 > pip3 install flask_cors
 
-#configuration
+## Configuration
 - Modifier le fichier de configuration pour accéder à la base de données :
 > cp config.cfg.default config.cfg
 
@@ -30,10 +31,10 @@ postgres doit etre installé
 config.cfg : changer l'accès à la base de données
 - l'application se charge de créer les tables
 
-#lancer l'application
+## Lancer l'application
 python3 app.py
 
-#tester l'application
+## Tester l'application
 Ensemble (GET)
 http http://127.0.0.1:5000/api/pois
 

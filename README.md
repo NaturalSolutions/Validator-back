@@ -1,5 +1,9 @@
-# restFulFlask
-Création d'une API REST
+# Validator-back
+Création d'une API REST pour une plateforme de validation de données
+environnement :
+* python 3
+* Flask
+* postgreSQL
 
 ## Création d'un environement python3 
 Flask [http://flask.pocoo.org/docs/0.12/installation/]
@@ -15,12 +19,12 @@ Flask [http://flask.pocoo.org/docs/0.12/installation/]
 
 ## Installation des dépendances
 postgreSQL doit être installé
-> pip3 install flask
-> pip3 install psycopg2
-> pip3 install Flask-SQLAlchemy
-> pip3 install flask_script
-> pip3 install flask_migrate
-> pip3 install flask_cors
+* > pip3 install flask
+* > pip3 install psycopg2
+* > pip3 install Flask-SQLAlchemy
+* > pip3 install flask_script
+* > pip3 install flask_migrate
+* > pip3 install flask_cors
 
 ## Configuration
 - Modifier le fichier de configuration pour accéder à la base de données :

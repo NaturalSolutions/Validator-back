@@ -65,9 +65,10 @@ if (($handle = fopen("./output/fields-values-pois_csv_to_sql.sql", "a")) !== FAL
 
       $pas++;
     }
-
-
   }
+
+	$updateSequence = "SELECT setval('values_id_seq', (SELECT max(id) FROM public.values));SELECT setval('pois_id_seq', (SELECT max(id) FROM public.pois));SELECT setval('fields_id_seq', (SELECT max(id) FROM public.fields));"
+	fwrite($handle, $updateSequence);
 }
 fclose($handle);
 

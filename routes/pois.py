@@ -99,8 +99,6 @@ def addOnePoi():
     requiredVal['tour_id'] = request.json['tour_id']
     requiredVal['typespois_id'] = request.json['typespois_id']
 
-    optionalVal['version'] = 1
-
     currentPoi = models.Pois(requiredVal, optionalVal)
 
     # crée les itinéraires
@@ -112,8 +110,8 @@ def addOnePoi():
             else:
                 currentField = fieldExist
             currentValue = models.Values(value=value)
-            currentasso = models.Contributions(
-                currentPoi, currentField, currentValue)
+            currentasso = models.Contributions(1, 'in progress',
+                                               currentPoi, currentField, currentValue)
             db.session.add(currentasso)
             db.session.commit()
     return jsonify({'Poi': currentPoi.id}), 201

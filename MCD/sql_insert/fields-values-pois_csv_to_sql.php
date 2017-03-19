@@ -8,10 +8,10 @@ id;longitude;latitude;name;name_en;name_fr;name_es;name_de;name_it;visit_time_mi
 */
 
 
-if (($handle = fopen("./output/fields-values-pois_csv_to_sql.sql", "a")) !== FALSE) {
+if (($handleFields = fopen("./output/fields_csv_to_sql.sql", "a")) !== FALSE) {
   $required = 'FALSE';
 
-  /*INSERT INTO public.fields(id, pos, name, required, idtype)
+  /*INSERT INTO public.fields(id, pos, name, required, types_id)
      VALUES (?, ?, ?, ?, ?);*/
   foreach ($header as $key => $value) {
     if($value == 'name'){
@@ -20,57 +20,67 @@ if (($handle = fopen("./output/fields-values-pois_csv_to_sql.sql", "a")) !== FAL
     if($value == 'id' || $value == 'type_id'){
       continue;
     }
-    $insertFields = "INSERT INTO public.fields(id, pos, name, required, idtype) VALUES ("
+    $insertFields = "INSERT INTO public.fields(id, pos, name, required, types_id) VALUES ("
       . $key .
       ", " . $key .
       ", '" . strval($value) .
       "', '" . $required .
       "', ". switchType($value) .");\n";
-    fwrite($handle, $insertFields);
+    fwrite($handleFields, $insertFields);
   }
+}
 
-  $pas = 1;
+$pas = 1;
+if (($handlePois = fopen("./output/pois_csv_to_sql.sql", "a")) !== FALSE) {
 
   foreach ($rows as $key => $value) {
     if($key == 110 ) break;
     $row = explode(";", $value);
     /*INSERT INTO public.pois(id, tour_id, typespois_id)
-	     VALUES (?, ?, ?);*/
+       VALUES (?, ?, ?);*/
     $insertPois = "INSERT INTO public.pois(id, tour_id, typespois_id) VALUES ("
       . $row[0] .
       ", '" . strval($row[0]) .
       "', '" . strval($row[13]) . "' );\n";
-    fwrite($handle, $insertPois);
+    fwrite($handlePois, $insertPois);
 
     /*INSERT INTO public."values"(id, value, createddate, iduser)
-	   VALUES (?, ?, ?, ?);*/
+     VALUES (?, ?, ?, ?);*/
 
     for($i= 1; $i < count($row) ; $i++){
       if($i == 13 || $row[$i] == '' || $row[$i] == -1){
         continue;
       }
-      $insertFields = "INSERT INTO public.values(id, value, createddate, iduser) VALUES ("
-        . $pas .
-        ", '" . valueToJson($header[$i],$row[$i]) .
-        "',  '01/01/2014' , 1 );\n";
-      fwrite($handle, $insertFields);
+      if (($handleValues = fopen("./output/values_csv_to_sql.sql", "a")) !== FALSE) {
 
-      /*INSERT INTO public.contributions(version, status, idfield, idvalue, idpoi)
-         VALUES (?, ?, ?, ?, ?);*/
-       $insertContributions = "INSERT INTO public.contributions(version, status, idfield, idvalue, idpoi) VALUES (1,'in progress', "
-         . $i .
-         ", " . $pas .
-         ", " . $row[0] . ");\n";
-       fwrite($handle, $insertContributions);
+        $insertValues = "INSERT INTO public.values(id, value, createddate, users_id) VALUES ("
+          . $pas .
+          ", '" . $row[$i] .
+          "',  '01/01/2014' , 1 );\n";
+        fwrite($handleValues, $insertValues);
+      }
+      if (($handleContrib = fopen("./output/contributions_csv_to_sql.sql", "a")) !== FALSE) {
 
+        /*INSERT INTO public.contributions(version, status, idfield, idvalue, idpoi)
+           VALUES (?, ?, ?, ?, ?);*/
+         $insertContributions = "INSERT INTO public.contributions(version, status, idfield, idvalue, idpoi) VALUES (1,'in progress', "
+           . $i .
+           ", " . $pas .
+           ", " .  addslashes($row[0]) . ");\n";
+         fwrite($handleContrib, $insertContributions);
+      }
       $pas++;
     }
   }
-
-	$updateSequence = "SELECT setval('values_id_seq', (SELECT max(id) FROM public.values));SELECT setval('pois_id_seq', (SELECT max(id) FROM public.pois));SELECT setval('fields_id_seq', (SELECT max(id) FROM public.fields));"
-	fwrite($handle, $updateSequence);
 }
-fclose($handle);
+
+$updateSequence = "SELECT setval('values_id_seq', (SELECT max(id) FROM public.values));SELECT setval('pois_id_seq', (SELECT max(id) FROM public.pois));SELECT setval('fields_id_seq', (SELECT max(id) FROM public.fields));";
+fwrite($handleContrib, $updateSequence);
+
+fclose($handleFields);
+fclose($handlePois);
+fclose($handleValues);
+fclose($handleContrib);
 
 function valueToJson($header, $value){
   if(gettype($value) != 'array'){

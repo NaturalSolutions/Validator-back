@@ -77,7 +77,7 @@ def addOneUser():
                                         .filter(models.Users.email==request.json['email']).first()
 
     if(userExist==None):
-        newUser = models.Users(lastname=request.json['lastname'], firstname=request.json['firstname'], email=request.json['email'])
+        newUser = models.Users(lastname=request.json['lastname'], firstname=request.json['firstname'], email=request.json['email'], categories_id=request.json['categories_id'])
         db.session.add(newUser)
     
         db.session.commit()

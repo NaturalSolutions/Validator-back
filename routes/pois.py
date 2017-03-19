@@ -122,24 +122,26 @@ def addOnePoi():
 
 
 
-@routes.route('/api/pois', methods=['PATCH'])
-def modifyOnePoiFieldValue(): 
+@routes.route('/api/pois/<int:idp>', methods=['PATCH'])
+def modifyOnePoiFieldValue(idp): 
 
-    id_value = request.json['id']
-    currentPoi = models.Pois.query.filter_by(id = id_value).first()
+    #id_value = request.json['id']
+    #currentPoi = models.Pois.query.filter_by(id = id_value).first()
+    currentPoi = models.Pois.query.filter_by(id = idp).first()
+
 
     for key, value in request.json.items():   
-        if key not in ['id']:
-            currentField = models.Fields.query.filter_by(name=key).first()
-            currentValue = models.Values(value=value)
-            currentContrib = models.Contributions(1, 'in progress',
-                                               currentPoi, currentField, currentValue)
-            db.session.add(currentContrib)
+        #if key not in ['id']:
+        currentField = models.Fields.query.filter_by(name=key).first()
+        currentValue = models.Values(value=value)
+        currentContrib = models.Contributions(1, 'in progress',
+                                           currentPoi, currentField, currentValue)
+        db.session.add(currentContrib)
     
     db.session.commit()
     return "Modif. OK", 204
 
-# lancer requete patch : http  PATCH http://localhost:5000/api/pois id=110 desc=newValue
+# lancer requete patch : http PATCH http://localhost:5000/api/pois/110 desc=newValue
 
 
 

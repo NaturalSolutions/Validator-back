@@ -94,35 +94,36 @@ def addOneUser():
 
 
 
-@routes.route('/api/users', methods=['PATCH'])
-def modifyOneUserValue():
-    id_value = request.json['id']
-    currentUser = models.Users.query.filter_by(id=id_value).first()
+@routes.route('/api/users/<int:idu>', methods=['PATCH'])
+def modifyOneUserValue(idu):
+    #id_value = request.json['id']
+    #currentUser = models.Users.query.filter_by(id=id_value).first()
+    currentUser = models.Users.query.filter_by(id=idu).first()
 
     for key, value in request.json.items():
-        if key not in ['id']:
-            if key in ['lastname']:
-                currentUser.lastname = value
-                db.session.commit()
-            if key in ['firstname']:
-                currentUser.firstname = value
-                db.session.commit()
-            if key in ['email']:
-                currentUser.email = value
-                db.session.commit()
-            if key in ['picture']:
-                currentUser.picture = value
-                db.session.commit()
-            if key in ['categorie_id']:
-                currentUser.categorie_id = value
-                db.session.commit()
-            if key in ['accounts_id']:
-                currentUser.accounts_id = value
-                db.session.commit()
+        #if key not in ['id']:
+        if key in ['lastname']:
+            currentUser.lastname = value
+            db.session.commit()
+        if key in ['firstname']:
+            currentUser.firstname = value
+            db.session.commit()
+        if key in ['email']:
+            currentUser.email = value
+            db.session.commit()
+        if key in ['picture']:
+            currentUser.picture = value
+            db.session.commit()
+        if key in ['categorie_id']:
+            currentUser.categorie_id = value
+            db.session.commit()
+        if key in ['accounts_id']:
+            currentUser.accounts_id = value
+            db.session.commit()
 
     return jsonify({'User': currentUser.id}), 204
 
-# lancer requete patch : http  PATCH http://localhost:5000/api/users id=2 lastname=cape firstname=elo
+# lancer requete patch : http  PATCH http://localhost:5000/api/users/2 lastname=cape firstname=elo
 
 
 

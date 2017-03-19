@@ -16,9 +16,8 @@ import routes
 from routes.__init__ import *
 app.register_blueprint(routes) #enregistrer les routes definies dans le dossier toutes au sein de l'application
 								# routes = nom de l'instance de BluePrint dans routes/__init__.py
+CORS(routes)
 
 
 if __name__ == "__main__":
     app.run(debug=True)
-    app = Blueprint('app',__name__ )
-    CORS(app)

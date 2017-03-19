@@ -1,10 +1,12 @@
 # -----MODELS AND CONFIG---------
 
 from flask import Flask, request, jsonify
+from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
 
 
 app = Flask(__name__)
+CORS(app)
 app.config.from_pyfile('config.cfg')
 db = SQLAlchemy(app)
 

@@ -1,4 +1,6 @@
 from app import db
+from sqlalchemy import Date
+from datetime import date
 
 class Contributions(db.Model):
     version = db.Column(db.Integer)
@@ -176,6 +178,7 @@ class Values(db.Model):
 
     def __init__(self, value):
         self.value = value
+        self.createddate = date.today()
         self.fields = []
         self.pois = []
 
@@ -186,10 +189,16 @@ class Users(db.Model):
     firstname = db.Column(db.String(35))
     email = db.Column(db.String(35))
     picture = db.Column(db.String(35))
+
     values = db.relationship('Values', backref='users', lazy='dynamic')
     categories_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
     accounts_id = db.Column(db.Integer, db.ForeignKey('accounts.id'))
 
+    def __init__(self, lastname, firstname, email, categories_id):
+        self.lastname = lastname
+        self.firstname = firstname
+        self.email = email
+        self.categories_id = categories_id
 
 class Categories(db.Model):
     id = db.Column(db.Integer, primary_key=True)

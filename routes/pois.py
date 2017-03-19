@@ -28,6 +28,7 @@ def returnAllPois():
                 if(oneField.name != 'description'):
                     malist.append({oneField.name: oneValue.value})
 
+
     # creation d'un format approprié en utilisant le dictionnaire
     malistFormatBon = []
     dictionnaire = {}
@@ -67,6 +68,7 @@ def returnOnepoi(idp):
             if(tempValue != oneValue):
                 tempValue = oneValue
                 malist.append({oneField.name: oneValue.value})
+
 
     # creation d'un format approprié en utilisant le dictionnaire
     malistFormatBon = []
@@ -116,5 +118,59 @@ def addOnePoi():
             db.session.commit()
     return jsonify({'Poi': currentPoi.id}), 201
 
-# lancer requete post : http  POST http://localhost:5000/api/pois
-# typespois_id=1 tour_id=11 desc=tatapouetpouet
+# lancer requete post : http  POST http://localhost:5000/api/pois typespois_id=1 tour_id=11 desc=tatapouetpouet
+
+
+
+@routes.route('/api/pois', methods=['PATCH'])
+def modifyOnePoiFieldValue(): 
+
+    id_value = request.json['id']
+    currentPoi = models.Pois.query.filter_by(id = id_value).first()
+
+    for key, value in request.json.items():   
+        if key not in ['id']:
+            currentField = models.Fields.query.filter_by(name=key).first()
+            currentValue = models.Values(value=value)
+            currentContrib = models.Contributions(1, 'in progress',
+                                               currentPoi, currentField, currentValue)
+            db.session.add(currentContrib)
+    
+    db.session.commit()
+    return "Modif. OK", 204
+
+# lancer requete patch : http  PATCH http://localhost:5000/api/pois id=110 desc=newValue
+
+
+
+
+@routes.route('/api/pois/<int:idp>', methods=['DELETE'])
+def deleteOnePoi(idp):
+    selectedPoi = models.Pois.query.filter_by(id=idp).first()
+    selectedContribs = models.Contributions.query.filter_by(idpoi=idp).all()
+
+    for contrib in selectedContribs:
+        selectedPoisValues = models.Values.query.filter_by(id=contrib.idvalue).first()
+        db.session.delete(selectedPoisValues)
+
+    db.session.commit()
+
+    
+    db.session.delete(selectedPoi)
+    db.session.commit()
+
+    for contribution in selectedContribs:
+        db.session.delete(contribution)
+    db.session.commit()
+
+
+    return "SUPPR. OK", 200
+
+# lancer requete delete : http  DELETE http://localhost:5000/api/pois/110
+
+
+
+
+
+
+

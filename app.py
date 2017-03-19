@@ -1,12 +1,11 @@
 # -----MODELS AND CONFIG---------
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Blueprint
 from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
 
 
 app = Flask(__name__)
-CORS(app)
 app.config.from_pyfile('config.cfg')
 db = SQLAlchemy(app)
 
@@ -21,3 +20,5 @@ app.register_blueprint(routes) #enregistrer les routes definies dans le dossier 
 
 if __name__ == "__main__":
     app.run(debug=True)
+    app = Blueprint('app',__name__ )
+    CORS(app)

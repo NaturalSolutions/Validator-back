@@ -95,8 +95,9 @@ class Pois(db.Model):
                              viewonly=True)
 
     def __init__(self, required, optional):
-        self.tour_id = required['tour_id']
         self.typespois_id = required['typespois_id']
+        if 'tour_id' in optional:
+            self.tour_id = optional['tour_id']
         if 'values' in optional:
             self.values = optional['values']
         if 'fields' in optional:

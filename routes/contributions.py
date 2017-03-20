@@ -77,7 +77,7 @@ def returnContributionsByPoi(idp):
         oneField = models.Fields.query.filter_by(id=ass.idfield).first()
         if(tempField!=oneField):
             tempField=oneField
-            malist.append({'field.name' : oneField.name})
+            malist.append({'field_name' : oneField.name})
 
         malist.append({'status': ass.status,  'version': ass.version})
         
@@ -99,55 +99,81 @@ def returnContributionsByPoi(idp):
     return jsonify({'contributionsByPoi': malistFormatBon}), 200
 
 
+def returnContributionsByIdvalue(idv):
+    
+    malist =[]
+
+    selectedContrib = models.Contributions.query.filter_by(idvalue=idv).first()
+
+    selectedValue = models.Values.query.filter_by(id=selectedContrib.idvalue).first()
+    malist.append({'id': selectedValue.id, 'created_date': selectedValue.createddate, 'value': selectedValue.value})
+    selectedUser = models.Users.query.filter_by(id=selectedValue.users_id).first()
+    malist.append({'user_name': selectedUser.lastname})
+
+    selectedPoi = models.Pois.query.filter_by(id=selectedContrib.idpoi).first()
+    malist.append({'poi_id': selectedPoi.id})
+
+    selectedField = models.Fields.query.filter_by(id=selectedContrib.idfield).first()
+    malist.append({'field_name' : selectedField.name})
+
+    return jsonify({'contributionsByIdvalue': malist})
+
 
 @routes.route('/api/contributions/<int:idv>', methods=['PATCH'])
 def modifyOneContributionStatus(idv):
-    try:
-    	newStatus = request.json['status'];
+    if(request.json is None):
+        return returnContributionsByIdvalue(idv)
+    else:
+        try:
+        	newStatus = request.json['status'];
 
-    	selectedValue = models.Values.query.filter_by(id = idv).first()
-    	idUser = selectedValue.users_id
-    	selectedUser= models.Users.query.filter_by(id = idUser).first()
+        	selectedValue = models.Values.query.filter_by(id = idv).first()
+        	idUser = selectedValue.users_id
+        	selectedUser= models.Users.query.filter_by(id = idUser).first()
 
-    	selectedContrib = models.Contributions.query.filter_by(idvalue = idv).first()
-    	selectedContrib.status = newStatus
-    	db.session.commit()
+        	selectedContrib = models.Contributions.query.filter_by(idvalue = idv).first()
+        	selectedContrib.status = newStatus
+        	db.session.commit()
 
-    	return jsonify({'status':selectedContrib.status, 'poi_id': selectedContrib.idpoi, \
-    			'created_date': selectedValue.createddate,'field_id':selectedContrib.idfield , \
-    			'value_id': selectedContrib.idvalue, 'user_name': selectedUser.lastname}), 200
-    except:
-        resp = jsonify({"error": 'Wrong patch on Contributions > only status can be patched'})
-        resp.status_code = 403
-        return resp
+        	return jsonify({'status':selectedContrib.status, 'poi_id': selectedContrib.idpoi, \
+        			'created_date': selectedValue.createddate,'field_id':selectedContrib.idfield , \
+        			'value_id': selectedContrib.idvalue, 'user_name': selectedUser.lastname}), 200
+        except:
+            resp = jsonify({"error": 'Wrong patch on Contributions > only status can be patched'})
+            resp.status_code = 403
+            return resp
 
 
 # lancer requete patch : http PATCH http://localhost:5000/api/contributions/990 status=updated
 
 
 
-
 @routes.route('/api/contributions', methods=['DELETE'])
 def deleteOneContribution():
-	id_value =  request.json['idvalue'];
+    id_value =  request.json['idvalue'];
 
-	selectedContrib = models.Contributions.query.filter_by(idvalue = id_value).first()
-	idpoiConcerned = selectedContrib.idpoi
+    selectedContrib = models.Contributions.query.filter_by(idvalue = id_value).first()
 
-	selectedValue = models.Values.query.filter_by(id=id_value).first()
-	db.session.delete(selectedValue)
-	db.session.commit()
+    if(selectedContrib is not None):
+    	idpoiConcerned = selectedContrib.idpoi
 
-	allContribPoiCount = models.Contributions.query.filter_by(idpoi=idpoiConcerned).count()
-	if(allContribPoiCount == 0):
-		associatedPoi = models.Pois.query.filter_by(id=idpoiConcerned).first()
-		db.session.delete(associatedPoi)
-	
-	db.session.delete(selectedContrib)
-	db.session.commit()
+    	selectedValue = models.Values.query.filter_by(id=id_value).first()
+    	db.session.delete(selectedValue)
+    	db.session.commit()
+
+    	allContribPoiCount = models.Contributions.query.filter_by(idpoi=idpoiConcerned).count()
+    	if(allContribPoiCount == 0):
+    		associatedPoi = models.Pois.query.filter_by(id=idpoiConcerned).first()
+    		db.session.delete(associatedPoi)
+    	
+    	db.session.delete(selectedContrib)
+    	db.session.commit()
 
 
-	return "SUPPR. OK", 204
+    	return "SUPPR. OK", 204
+    else:
+        return jsonify({"error": 'This idvalue does not exists'}), 404
+
 
 # lancer requete delete : http DELETE  http://localhost:5000/api/contributions idvalue=1008
 

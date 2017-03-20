@@ -174,25 +174,29 @@ def modifyOnePoiFieldValue(idp):
 
 @routes.route('/api/pois/<int:idp>', methods=['DELETE'])
 def deleteOnePoi(idp):
+
     selectedPoi = models.Pois.query.filter_by(id=idp).first()
-    selectedContribs = models.Contributions.query.filter_by(idpoi=idp).all()
+    if(selectedPoi is not None):
+        selectedContribs = models.Contributions.query.filter_by(idpoi=idp).all()
 
-    for contrib in selectedContribs:
-        selectedPoisValues = models.Values.query.filter_by(id=contrib.idvalue).first()
-        db.session.delete(selectedPoisValues)
+        for contrib in selectedContribs:
+            selectedPoisValues = models.Values.query.filter_by(id=contrib.idvalue).first()
+            db.session.delete(selectedPoisValues)
 
-    db.session.commit()
+        db.session.commit()
 
-    
-    db.session.delete(selectedPoi)
-    db.session.commit()
+        
+        db.session.delete(selectedPoi)
+        db.session.commit()
 
-    for contribution in selectedContribs:
-        db.session.delete(contribution)
-    db.session.commit()
+        for contribution in selectedContribs:
+            db.session.delete(contribution)
+        db.session.commit()
 
 
-    return "SUPPR. OK", 204
+        return "SUPPR. OK", 204
+    else:
+        return jsonify({"error": 'This POI does not exists'}), 404
 
 # lancer requete delete : http  DELETE http://localhost:5000/api/pois/110
 

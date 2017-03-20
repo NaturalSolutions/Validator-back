@@ -142,11 +142,16 @@ def modifyOneUserValue(idu):
 
 @routes.route('/api/users/<int:idu>', methods=['DELETE'])
 def deleteOneUser(idu):
+
     currentUser = models.Users.query.filter_by(id=idu).first()
-    db.session.delete(currentUser)
-    db.session.commit()
-    
-    return "SUPPR. OK", 204
+
+    if(currentUser is not None):
+        db.session.delete(currentUser)
+        db.session.commit()
+        
+        return "SUPPR. OK", 204
+    else:
+        return jsonify({"error": 'This user does not exists'}), 404
 
 # lancer requete delete : http  DELETE http://localhost:5000/api/users/2
 

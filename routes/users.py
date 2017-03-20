@@ -32,7 +32,7 @@ def returnAllUsers():
                 compteur+=1
             dictionnaire[cle]=valeur
     malistFormatBon.append(dictionnaire)
-    return jsonify({'users': malistFormatBon})
+    return jsonify({'users': malistFormatBon}), 200
 
 
 @routes.route('/api/users/<int:idu>', methods=['GET'])
@@ -64,10 +64,7 @@ def returnOneUser(idu):
                 compteur+=1
             dictionnaire[cle]=valeur
     malistFormatBon.append(dictionnaire)
-    return jsonify({'user': malistFormatBon})
-
-
-
+    return jsonify({'user': malistFormatBon}), 200
 
 
 @routes.route('/api/users', methods=['POST'])
@@ -86,7 +83,7 @@ def addOneUser():
         return jsonify({'User': newUser.id}), 201;
         
     except:
-        resp = jsonify({"error": 'Missing required fields'})
+        resp = jsonify({"error": 'Missing required fields OR Wrong name key of one or more field(s)'})
         resp.status_code = 403
         return resp
 
@@ -99,31 +96,39 @@ def modifyOneUserValue(idu):
     #id_value = request.json['id']
     #currentUser = models.Users.query.filter_by(id=id_value).first()
     currentUser = models.Users.query.filter_by(id=idu).first()
+    try:
+        for key, value in request.json.items():
+            #if key not in ['id']:
+            if key in ['lastname']:
+                currentUser.lastname = value
+                db.session.commit()
+            elif key in ['firstname']:
+                currentUser.firstname = value
+                db.session.commit()
+            elif key in ['email']:
+                currentUser.email = value
+                db.session.commit()
+            elif key in ['picture']:
+                currentUser.picture = value
+                db.session.commit()
+            elif key in ['categorie_id']:
+                currentUser.categorie_id = value
+                db.session.commit()
+            elif key in ['accounts_id']:
+                currentUser.accounts_id = value
+                db.session.commit()
+            else :
+                raise ValueError("Error : wrong name field")
+        newUser = models.Users.query.filter_by(id=idu).first()
 
-    for key, value in request.json.items():
-        #if key not in ['id']:
-        if key in ['lastname']:
-            currentUser.lastname = value
-            db.session.commit()
-        if key in ['firstname']:
-            currentUser.firstname = value
-            db.session.commit()
-        if key in ['email']:
-            currentUser.email = value
-            db.session.commit()
-        if key in ['picture']:
-            currentUser.picture = value
-            db.session.commit()
-        if key in ['categorie_id']:
-            currentUser.categorie_id = value
-            db.session.commit()
-        if key in ['accounts_id']:
-            currentUser.accounts_id = value
-            db.session.commit()
+        return jsonify({'User': currentUser.id, 'first_name': newUser.firstname, 'last_name': newUser.lastname, 'email': newUser.email, \
+                    'picture': newUser.picture, 'role': newUser.categories_id}), 200
+    except ValueError:
+        resp = jsonify({"error": 'Error : wrong name key of one or more field(s)'})
+        resp.status_code = 403
+        return resp
 
-    return jsonify({'User': currentUser.id}), 204
-
-# lancer requete patch : http  PATCH http://localhost:5000/api/users/2 lastname=cape firstname=elo
+# lancer requete patch : http PATCH http://localhost:5000/api/users/2 lastname=cape firstname=elo
 
 
 
@@ -133,7 +138,7 @@ def deleteOneUser(idu):
     db.session.delete(currentUser)
     db.session.commit()
     
-    return "SUPPR. OK", 200
+    return "SUPPR. OK", 204
 
 # lancer requete delete : http  DELETE http://localhost:5000/api/users/2
 

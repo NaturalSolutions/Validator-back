@@ -44,7 +44,7 @@ def returnAllPois():
                 compteur += 1
             dictionnaire[cle] = valeur
     malistFormatBon.append(dictionnaire)
-    return jsonify({'pois': malistFormatBon})
+    return jsonify({'pois': malistFormatBon}), 200
 
 
 @routes.route('/api/pois/<int:idp>', methods=['GET'])
@@ -85,7 +85,7 @@ def returnOnepoi(idp):
                 compteur += 1
             dictionnaire[cle] = valeur
     malistFormatBon.append(dictionnaire)
-    return jsonify({'poi': malistFormatBon})
+    return jsonify({'poi': malistFormatBon}), 200
 
 
 @routes.route('/api/pois', methods=['POST'])
@@ -127,19 +127,45 @@ def modifyOnePoiFieldValue(idp):
 
     #id_value = request.json['id']
     #currentPoi = models.Pois.query.filter_by(id = id_value).first()
-    currentPoi = models.Pois.query.filter_by(id = idp).first()
+    try:
+        currentPoi = models.Pois.query.filter_by(id = idp).first()
+        if(currentPoi == None):
+            raise ValueError('This POI does not exist')
+    except ValueError:
+        resp = jsonify({"error": 'This POI does not exist'})
+        resp.status_code = 403
+        return resp
 
+    try:
+        for key, value in request.json.items():   
+            #if key not in ['id']:
+            currentField = models.Fields.query.filter_by(name=key).first()
+            
+            allContribs = models.Contributions.query.all()
+            for contrib in allContribs:
+                if(contrib.idpoi == currentPoi.id and contrib.idfield == currentField.id):
+                    contribExist = 1;
+                    lastContrib = contrib;
 
-    for key, value in request.json.items():   
-        #if key not in ['id']:
-        currentField = models.Fields.query.filter_by(name=key).first()
-        currentValue = models.Values(value=value)
-        currentContrib = models.Contributions(1, 'in progress',
+            if(contribExist):
+                currentValue = models.Values(value=value)
+                currentContrib = models.Contributions(lastContrib.version+1, 'in progress',
+                                               currentPoi, currentField, currentValue)
+                db.session.add(currentContrib)
+            else:  
+                currentValue = models.Values(value=value)
+                currentContrib = models.Contributions(1, 'in progress',
                                            currentPoi, currentField, currentValue)
-        db.session.add(currentContrib)
-    
-    db.session.commit()
-    return "Modif. OK", 204
+                db.session.add(currentContrib)
+        db.session.commit()
+            
+        return jsonify({'poi_id': currentPoi.id, 'field_id': currentField.id, 'field_name': currentField.name,\
+                        'value_id': currentContrib.idvalue, 'value': value,  }), 200
+    except:
+        resp = jsonify({"error": 'Missing required fields or Bad key of entered name fields'})
+        resp.status_code = 403
+        return resp
+
 
 # lancer requete patch : http PATCH http://localhost:5000/api/pois/110 desc=newValue
 
@@ -166,7 +192,7 @@ def deleteOnePoi(idp):
     db.session.commit()
 
 
-    return "SUPPR. OK", 200
+    return "SUPPR. OK", 204
 
 # lancer requete delete : http  DELETE http://localhost:5000/api/pois/110
 

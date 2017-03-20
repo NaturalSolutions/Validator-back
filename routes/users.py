@@ -69,22 +69,27 @@ def returnOneUser(idu):
 
 @routes.route('/api/users', methods=['POST'])
 def addOneUser():
-	userExist = models.Users.query.filter(models.Users.lastname==request.json['lastname']).filter(models.Users.firstname==request.json['firstname']).filter(models.Users.email==request.json['email']).first()
-	print(userExist)
+	try:
+	    userExist = models.Users.query.filter(models.Users.email==request.json['email']).first()
+	except KeyError:
+		return jsonify({"error": 'Key-name email is not found'})
+	    
 
-    #try:                              
-    if(userExist==None):
-        newUser = models.Users(lastname=request.json['lastname'], firstname=request.json['firstname'], email=request.json['email'], categories_id=request.json['categories_id'])
-        db.session.add(newUser)
+	if(userExist==None):
+	    try:
+	        newUser = models.Users(lastname=request.json['lastname'], firstname=request.json['firstname'], email=request.json['email'], categories_id=request.json['categories_id'])
+	        db.session.add(newUser)
+	        db.session.commit()
+	    except KeyError:
+	        resp = jsonify({"error": 'Missing required fields OR Wrong name key of one or more field(s)'})
+	        resp.status_code = 403
+	        return resp
+	    return jsonify({'User': newUser.id}), 201
+        
+	else:
+	    return jsonify({'Error': "E-mail already exists"}), 404
+        
     
-        db.session.commit()
-      	return jsonify({'User': newUser.id}), 201
-    else:
-        return jsonify({'Error': "NOT FOUND"}), 404
-    '''except:
-        resp = jsonify({"error": 'Missing required fields OR Wrong name key of one or more field(s)'})
-        resp.status_code = 403
-        return resp'''
 
 # lancer requete post : http  POST http://localhost:5000/api/users lastname=thom firstname=sand email=stho@gmail.com
 
@@ -121,12 +126,12 @@ def modifyOneUserValue(idu):
 	                currentUser.accounts_id = value
 	                db.session.commit()
 	            else :
-	                raise ValueError("Error : wrong name field")
+	                raise KeyError("Error : wrong name field")
 	        newUser = models.Users.query.filter_by(id=idu).first()
 
 	        return jsonify({'User': currentUser.id, 'firstname': newUser.firstname, 'lastname': newUser.lastname, 'email': newUser.email, \
 	                    'picture': newUser.picture, 'role': newUser.categories_id}), 200
-	    except ValueError:
+	    except KeyError:
 	        resp = jsonify({"error": 'Error : wrong name key of one or more field(s)'})
 	        resp.status_code = 403
 	        return resp

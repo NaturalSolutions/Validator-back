@@ -13,7 +13,7 @@ def returnAllUsers():
         oneUser = models.Users.query.filter_by(id=usr.id).first()
         if(tempUser!=oneUser):
             tempUser=oneUser
-            malist.append({'id': oneUser.id, 'last_name': oneUser.lastname, 'first_name': oneUser.firstname, 'email': oneUser.email, 'picture': oneUser.picture})
+            malist.append({'id': oneUser.id, 'lastname': oneUser.lastname, 'firstname': oneUser.firstname, 'email': oneUser.email, 'picture': oneUser.picture})
         oneCategorie = models.Categories.query.filter_by(id = usr.categories_id).first()
         malist.append({'role': oneCategorie.name})
 
@@ -45,7 +45,7 @@ def returnOneUser(idu):
         oneUser = models.Users.query.filter_by(id=usr.id).first()
         if(tempUser!=oneUser):
             tempUser=oneUser
-            malist.append({'id': oneUser.id, 'last_name': oneUser.lastname, 'first_name': oneUser.firstname, 'email': oneUser.email, 'picture': oneUser.picture})
+            malist.append({'id': oneUser.id, 'lastname': oneUser.lastname, 'firstname': oneUser.firstname, 'email': oneUser.email, 'picture': oneUser.picture})
         oneCategorie = models.Categories.query.filter_by(id = usr.categories_id).first()
         malist.append({'role': oneCategorie.name})
 
@@ -93,40 +93,44 @@ def addOneUser():
 
 @routes.route('/api/users/<int:idu>', methods=['PATCH'])
 def modifyOneUserValue(idu):
-    #id_value = request.json['id']
-    #currentUser = models.Users.query.filter_by(id=id_value).first()
-    currentUser = models.Users.query.filter_by(id=idu).first()
-    try:
-        for key, value in request.json.items():
-            #if key not in ['id']:
-            if key in ['lastname']:
-                currentUser.lastname = value
-                db.session.commit()
-            elif key in ['firstname']:
-                currentUser.firstname = value
-                db.session.commit()
-            elif key in ['email']:
-                currentUser.email = value
-                db.session.commit()
-            elif key in ['picture']:
-                currentUser.picture = value
-                db.session.commit()
-            elif key in ['categorie_id']:
-                currentUser.categorie_id = value
-                db.session.commit()
-            elif key in ['accounts_id']:
-                currentUser.accounts_id = value
-                db.session.commit()
-            else :
-                raise ValueError("Error : wrong name field")
-        newUser = models.Users.query.filter_by(id=idu).first()
+    if(request.json is None):
+    	return returnOneUser(idu)
 
-        return jsonify({'User': currentUser.id, 'first_name': newUser.firstname, 'last_name': newUser.lastname, 'email': newUser.email, \
-                    'picture': newUser.picture, 'role': newUser.categories_id}), 200
-    except ValueError:
-        resp = jsonify({"error": 'Error : wrong name key of one or more field(s)'})
-        resp.status_code = 403
-        return resp
+    else:
+    	#id_value = request.json['id']
+    	#currentUser = models.Users.query.filter_by(id=id_value).first()
+	    currentUser = models.Users.query.filter_by(id=idu).first()
+	    try:
+	        for key, value in request.json.items():
+	            #if key not in ['id']:
+	            if key in ['lastname']:
+	                currentUser.lastname = value
+	                db.session.commit()
+	            elif key in ['firstname']:
+	                currentUser.firstname = value
+	                db.session.commit()
+	            elif key in ['email']:
+	                currentUser.email = value
+	                db.session.commit()
+	            elif key in ['picture']:
+	                currentUser.picture = value
+	                db.session.commit()
+	            elif key in ['categorie_id']:
+	                currentUser.categorie_id = value
+	                db.session.commit()
+	            elif key in ['accounts_id']:
+	                currentUser.accounts_id = value
+	                db.session.commit()
+	            else :
+	                raise ValueError("Error : wrong name field")
+	        newUser = models.Users.query.filter_by(id=idu).first()
+
+	        return jsonify({'User': currentUser.id, 'firstname': newUser.firstname, 'lastname': newUser.lastname, 'email': newUser.email, \
+	                    'picture': newUser.picture, 'role': newUser.categories_id}), 200
+	    except ValueError:
+	        resp = jsonify({"error": 'Error : wrong name key of one or more field(s)'})
+	        resp.status_code = 403
+	        return resp
 
 # lancer requete patch : http PATCH http://localhost:5000/api/users/2 lastname=cape firstname=elo
 

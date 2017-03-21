@@ -94,7 +94,7 @@ class Pois(db.Model):
     values = db.relationship('Values', secondary='contributions',
                              viewonly=True)
 
-    
+
     def __init__(self, required, optional):
         fields_list = ['id', 'name', 'version', 'longitude', 'latitude', 'type_id', 'name_en', \
                     'name_fr', 'name_es', 'name_de', 'name_it', 'visit_time_min', 'visit_time_max', \
@@ -102,13 +102,12 @@ class Pois(db.Model):
                     'resa_link', 'url_img1', 'url_img2', 'desc', 'desc_en', 'desc_fr', 'desc_es', 'desc_de',\
                     'desc_it', 'withchild']
 
-        self.tour_id = required['tour_id']
+        self.tour_id = optional['tour_id']
         self.typespois_id = required['typespois_id']
 
         for field in fields_list:
             if field in optional:
                 self.field = optional[field]
-        
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}

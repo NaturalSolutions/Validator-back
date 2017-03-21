@@ -97,33 +97,45 @@ def addOnePoi():
     nbFind = 0
     nbToFind = len(colRequired)
     fieldExist = 0
+    rjson = request.get_json()
+    tour_id = rjson.get("tour_id", "null")
+    typespois_id = rjson.get("typespois_id", "null")
 
-    requiredVal['tour_id'] = request.json['tour_id']
-    requiredVal['typespois_id'] = request.json['typespois_id']
+    if (tour_id != "null") :
+        optionalVal['tour_id'] = request.json['tour_id']
+    else:
+        optionalVal['tour_id'] = 0
+    try:
+        if (typespois_id != "null") :
+            requiredVal['typespois_id'] = request.json['typespois_id']
+        else:
+            raise ValueError("Error : Missing required field")
 
-    currentPoi = models.Pois(requiredVal, optionalVal)
-
-    # crée les itinéraires
-    for key, value in request.json.items():
-        if key not in ['tour_id', 'typespois_id']:
-            fieldExist = models.Fields.query.filter_by(name=key).first()
-            if (fieldExist == 0):
-                currentField = models.Fields(pos=1, name=key)
-            else:
-                currentField = fieldExist
-            currentValue = models.Values(value=value)
-            currentasso = models.Contributions(1, 'in progress',
-                                               currentPoi, currentField, currentValue)
-            db.session.add(currentasso)
-            db.session.commit()
-    return jsonify({'Poi': currentPoi.id}), 201
+        currentPoi = models.Pois(requiredVal, optionalVal)
+        for key, value in request.json.items():
+            if key not in ['tour_id', 'typespois_id']:
+                fieldExist = models.Fields.query.filter_by(name=key).first()
+                if (fieldExist == 0):
+                    currentField = models.Fields(pos=1, name=key)
+                else:
+                    currentField = fieldExist
+                currentValue = models.Values(value=value)
+                currentasso = models.Contributions(1, 'in progress',
+                                                   currentPoi, currentField, currentValue)
+                db.session.add(currentasso)
+                db.session.commit()
+        return jsonify({'Poi': currentPoi.id}), 201
+    except ValueError:
+        resp = jsonify({"error": 'Missing required field'})
+        resp.status_code = 403
+        return resp
 
 # lancer requete post : http  POST http://localhost:5000/api/pois typespois_id=1 tour_id=11 desc=tatapouetpouet
 
 
 
 @routes.route('/api/pois/<int:idp>', methods=['PATCH'])
-def modifyOnePoiFieldValue(idp): 
+def modifyOnePoiFieldValue(idp):
     try:
         currentPoi = models.Pois.query.filter_by(id = idp).first()
         if(currentPoi == None):
@@ -138,9 +150,9 @@ def modifyOnePoiFieldValue(idp):
 
     try:
         contribExist = 0
-        for key, value in request.json.items():   
+        for key, value in request.json.items():
             currentField = models.Fields.query.filter_by(name=key).first()
-            
+
             allContribs = models.Contributions.query.all()
             for contrib in allContribs:
                 if(contrib.idpoi == currentPoi.id and contrib.idfield == currentField.id):
@@ -152,13 +164,13 @@ def modifyOnePoiFieldValue(idp):
                 currentContrib = models.Contributions(lastContrib.version+1, 'in progress',
                                                currentPoi, currentField, currentValue)
                 db.session.add(currentContrib)
-            else:  
+            else:
                 currentValue = models.Values(value=value)
                 currentContrib = models.Contributions(1, 'in progress',
                                            currentPoi, currentField, currentValue)
                 db.session.add(currentContrib)
         db.session.commit()
-            
+
         return jsonify({'poi_id': currentPoi.id, 'field_id': currentField.id, 'field_name': currentField.name,\
                         'value_id': currentContrib.idvalue, 'value': value,  }), 200
     except:
@@ -185,7 +197,7 @@ def deleteOnePoi(idp):
 
         db.session.commit()
 
-        
+
         db.session.delete(selectedPoi)
         db.session.commit()
 
@@ -199,10 +211,3 @@ def deleteOnePoi(idp):
         return jsonify({"error": 'This POI does not exists'}), 404
 
 # lancer requete delete : http  DELETE http://localhost:5000/api/pois/110
-
-
-
-
-
-
-

@@ -35,7 +35,7 @@ def returnAllContributions():
         malist.append({'status': ass.status, 'version': ass.version})
 
     #creation d'un format approprié en utilisant le dictionnaire
-    malistFormatBon=[] #format ideal
+    malistFormatBon=[] 
     dictionnaire={}
     compteurContrib=0;
     compteur=2
@@ -49,14 +49,14 @@ def returnAllContributions():
                 compteur+=1
             dictionnaire[cle]=valeur
     malistFormatBon.append(dictionnaire)
-    return jsonify({'contributions': malistFormatBon})
+    return jsonify({'contributions': malistFormatBon}), 200
 
 
-@routes.route('/api/contributions/<int:idp>', methods=['GET'])
-def returnContributionsById(idp):
+@routes.route('/api/contributions/pois/<int:idp>', methods=['GET'])
+def returnContributionsByPoi(idp):
     allAsso = models.Contributions.query.filter_by(idpoi=idp).all()
 
-    malist = [] #format qui nous arrange pas
+    malist = []
     tempPoi=0
     tempField=0
     tempValue=0
@@ -77,12 +77,12 @@ def returnContributionsById(idp):
         oneField = models.Fields.query.filter_by(id=ass.idfield).first()
         if(tempField!=oneField):
             tempField=oneField
-            malist.append({'field.name' : oneField.name})
+            malist.append({'field_name' : oneField.name})
 
         malist.append({'status': ass.status,  'version': ass.version})
         
     #creation d'un format approprié en utilisant le dictionnaire
-    malistFormatBon=[] #format ideal
+    malistFormatBon=[] 
     dictionnaire={}
     compteurContrib=0;
     compteur=2
@@ -96,4 +96,104 @@ def returnContributionsById(idp):
                 compteur+=1
             dictionnaire[cle]=valeur
     malistFormatBon.append(dictionnaire)
-    return jsonify({'contributionsByPoi': malistFormatBon})
+    return jsonify({'contributionsByPoi': malistFormatBon}), 200
+
+
+def returnContributionsByIdvalue(idv):
+    
+    malist =[]
+
+    selectedContrib = models.Contributions.query.filter_by(idvalue=idv).first()
+
+    selectedValue = models.Values.query.filter_by(id=selectedContrib.idvalue).first()
+    malist.append({'idvalue': selectedValue.id, 'created_date': selectedValue.createddate, 'value': selectedValue.value})
+    
+    if(selectedValue.users_id is not None):
+        selectedUser = models.Users.query.filter_by(id=selectedValue.users_id).first()
+        malist.append({'user_name': selectedUser.lastname})
+    else:
+        malist.append({'user_name': "None"})
+
+    selectedPoi = models.Pois.query.filter_by(id=selectedContrib.idpoi).first()
+    malist.append({'poi_id': selectedPoi.id})
+
+    selectedField = models.Fields.query.filter_by(id=selectedContrib.idfield).first()
+    malist.append({'field_name' : selectedField.name})
+
+    return jsonify({'contributionsByIdvalue': malist})
+
+
+@routes.route('/api/contributions/values/<int:idv>', methods=['PATCH'])
+def modifyOneContributionStatus(idv):
+    try:
+        currentContrib = models.Contributions.query.filter_by(idvalue=idv).first()
+        if(currentContrib == None):
+            raise ValueError('This contribution does not exist')
+    except ValueError:
+        resp = jsonify({"error": 'This contribution does not exist'})
+        resp.status_code = 404
+        return resp
+
+
+    if(request.json is None):
+        return returnContributionsByIdvalue(idv)
+    else:
+        try:
+        	newStatus = request.json['status'];
+
+        	selectedValue = models.Values.query.filter_by(id = idv).first()
+        	idUser = selectedValue.users_id
+        	selectedUser= models.Users.query.filter_by(id = idUser).first()
+
+        	selectedContrib = models.Contributions.query.filter_by(idvalue = idv).first()
+        	selectedContrib.status = newStatus
+        	db.session.commit()
+
+        	return jsonify({'status':selectedContrib.status, 'poi_id': selectedContrib.idpoi, \
+        			'created_date': selectedValue.createddate,'field_id':selectedContrib.idfield , \
+        			'value_id': selectedContrib.idvalue}), 200
+        except:
+            resp = jsonify({"error": 'Wrong patch on Contributions > only status can be patched'})
+            resp.status_code = 403
+            return resp
+
+
+# lancer requete patch : http PATCH http://localhost:5000/api/contributions/values/990 status=updated
+
+
+
+@routes.route('/api/contributions/values/<int:idv>', methods=['DELETE'])
+def deleteOneContribution(idv):
+
+    selectedContrib = models.Contributions.query.filter_by(idvalue = idv).first()
+
+    if(selectedContrib is not None):
+    	idpoiConcerned = selectedContrib.idpoi
+
+    	selectedValue = models.Values.query.filter_by(id=idv).first()
+    	db.session.delete(selectedValue)
+    	db.session.commit()
+
+    	allContribPoiCount = models.Contributions.query.filter_by(idpoi=idpoiConcerned).count()
+    	if(allContribPoiCount == 0):
+    		associatedPoi = models.Pois.query.filter_by(id=idpoiConcerned).first()
+    		db.session.delete(associatedPoi)
+    	
+    	db.session.delete(selectedContrib)
+    	db.session.commit()
+
+
+    	return "SUPPR. OK", 204
+    else:
+        return jsonify({"error": 'This idvalue does not exists'}), 404
+
+
+# lancer requete delete : http DELETE  http://localhost:5000/api/contributions/values/1008
+
+
+
+
+
+
+
+

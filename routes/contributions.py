@@ -52,7 +52,7 @@ def returnAllContributions():
     return jsonify({'contributions': malistFormatBon}), 200
 
 
-@routes.route('/api/contributions/<int:idp>', methods=['GET'])
+@routes.route('/api/contributions/pois/<int:idp>', methods=['GET'])
 def returnContributionsByPoi(idp):
     allAsso = models.Contributions.query.filter_by(idpoi=idp).all()
 
@@ -106,9 +106,13 @@ def returnContributionsByIdvalue(idv):
     selectedContrib = models.Contributions.query.filter_by(idvalue=idv).first()
 
     selectedValue = models.Values.query.filter_by(id=selectedContrib.idvalue).first()
-    malist.append({'id': selectedValue.id, 'created_date': selectedValue.createddate, 'value': selectedValue.value})
-    selectedUser = models.Users.query.filter_by(id=selectedValue.users_id).first()
-    malist.append({'user_name': selectedUser.lastname})
+    malist.append({'idvalue': selectedValue.id, 'created_date': selectedValue.createddate, 'value': selectedValue.value})
+    
+    if(selectedValue.users_id is not None):
+        selectedUser = models.Users.query.filter_by(id=selectedValue.users_id).first()
+        malist.append({'user_name': selectedUser.lastname})
+    else:
+        malist.append({'user_name': "None"})
 
     selectedPoi = models.Pois.query.filter_by(id=selectedContrib.idpoi).first()
     malist.append({'poi_id': selectedPoi.id})
@@ -119,8 +123,18 @@ def returnContributionsByIdvalue(idv):
     return jsonify({'contributionsByIdvalue': malist})
 
 
-@routes.route('/api/contributions/<int:idv>', methods=['PATCH'])
+@routes.route('/api/contributions/values/<int:idv>', methods=['PATCH'])
 def modifyOneContributionStatus(idv):
+    try:
+        currentContrib = models.Contributions.query.filter_by(idvalue=idv).first()
+        if(currentContrib == None):
+            raise ValueError('This contribution does not exist')
+    except ValueError:
+        resp = jsonify({"error": 'This contribution does not exist'})
+        resp.status_code = 404
+        return resp
+
+
     if(request.json is None):
         return returnContributionsByIdvalue(idv)
     else:
@@ -137,27 +151,26 @@ def modifyOneContributionStatus(idv):
 
         	return jsonify({'status':selectedContrib.status, 'poi_id': selectedContrib.idpoi, \
         			'created_date': selectedValue.createddate,'field_id':selectedContrib.idfield , \
-        			'value_id': selectedContrib.idvalue, 'user_name': selectedUser.lastname}), 200
+        			'value_id': selectedContrib.idvalue}), 200
         except:
             resp = jsonify({"error": 'Wrong patch on Contributions > only status can be patched'})
             resp.status_code = 403
             return resp
 
 
-# lancer requete patch : http PATCH http://localhost:5000/api/contributions/990 status=updated
+# lancer requete patch : http PATCH http://localhost:5000/api/contributions/values/990 status=updated
 
 
 
-@routes.route('/api/contributions', methods=['DELETE'])
-def deleteOneContribution():
-    id_value =  request.json['idvalue'];
+@routes.route('/api/contributions/values/<int:idv>', methods=['DELETE'])
+def deleteOneContribution(idv):
 
-    selectedContrib = models.Contributions.query.filter_by(idvalue = id_value).first()
+    selectedContrib = models.Contributions.query.filter_by(idvalue = idv).first()
 
     if(selectedContrib is not None):
     	idpoiConcerned = selectedContrib.idpoi
 
-    	selectedValue = models.Values.query.filter_by(id=id_value).first()
+    	selectedValue = models.Values.query.filter_by(id=idv).first()
     	db.session.delete(selectedValue)
     	db.session.commit()
 
@@ -175,7 +188,7 @@ def deleteOneContribution():
         return jsonify({"error": 'This idvalue does not exists'}), 404
 
 
-# lancer requete delete : http DELETE  http://localhost:5000/api/contributions idvalue=1008
+# lancer requete delete : http DELETE  http://localhost:5000/api/contributions/values/1008
 
 
 

@@ -124,21 +124,21 @@ def addOnePoi():
 
 @routes.route('/api/pois/<int:idp>', methods=['PATCH'])
 def modifyOnePoiFieldValue(idp): 
-
-    #id_value = request.json['id']
-    #currentPoi = models.Pois.query.filter_by(id = id_value).first()
     try:
         currentPoi = models.Pois.query.filter_by(id = idp).first()
         if(currentPoi == None):
             raise ValueError('This POI does not exist')
     except ValueError:
         resp = jsonify({"error": 'This POI does not exist'})
-        resp.status_code = 403
+        resp.status_code = 404
         return resp
 
+    if(request.json is None):
+        return returnOnepoi(idp)
+
     try:
+        contribExist = 0
         for key, value in request.json.items():   
-            #if key not in ['id']:
             currentField = models.Fields.query.filter_by(name=key).first()
             
             allContribs = models.Contributions.query.all()

@@ -18,7 +18,7 @@ def returnAllUsers():
         malist.append({'role': oneCategorie.name})
 
     #creation d'un format approprié en utilisant le dictionnaire
-    malistFormatBon=[] #format ideal
+    malistFormatBon=[] 
     dictionnaire={}
     compteurUser=0;
     compteur=2
@@ -50,7 +50,7 @@ def returnOneUser(idu):
         malist.append({'role': oneCategorie.name})
 
     #creation d'un format approprié en utilisant le dictionnaire
-    malistFormatBon=[] #format ideal
+    malistFormatBon=[] 
     dictionnaire={}
     compteurUser=0;
     compteur=2
@@ -101,12 +101,9 @@ def modifyOneUserValue(idu):
     	return returnOneUser(idu)
 
     else:
-    	#id_value = request.json['id']
-    	#currentUser = models.Users.query.filter_by(id=id_value).first()
 	    currentUser = models.Users.query.filter_by(id=idu).first()
 	    try:
 	        for key, value in request.json.items():
-	            #if key not in ['id']:
 	            if key in ['lastname']:
 	                currentUser.lastname = value
 	                db.session.commit()
@@ -136,7 +133,7 @@ def modifyOneUserValue(idu):
 	        resp.status_code = 403
 	        return resp
 
-# lancer requete patch : http PATCH http://localhost:5000/api/users/2 lastname=cape firstname=elo
+# lancer requete patch : http PATCH http://localhost:5000/api/users/2 lastname=cape firstname=elo categories_id=3
 
 
 

@@ -115,7 +115,7 @@ def addOnePoi():
         for key, value in request.json.items():
             if key not in ['tour_id', 'typespois_id']:
                 fieldExist = models.Fields.query.filter_by(name=key).first()
-                if (fieldExist == 0):
+                if (fieldExist == None):
                     currentField = models.Fields(pos=1, name=key)
                 else:
                     currentField = fieldExist

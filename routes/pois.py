@@ -154,22 +154,25 @@ def modifyOnePoiFieldValue(idp):
         print(request.json.items())
         for key, value in request.json.items():
             currFieldslist = list(filter(lambda f: f.name == key, currentPoi.fields))
+            # Add field if not exists
             if len(currFieldslist) > 0:
                 currentField = currFieldslist[0]
-                print('current fields ', currentField, 'key: '+str(key))
-                lastContrib = models.Contributions.query.filter_by(idfield=currentField.id
-                                                                   ).filter_by(idpoi=currentPoi.id
-                                                                   ).order_by(desc(models.Contributions.version)).first()
-                if(lastContrib):
-                    currentValue = models.Values(value=value)
-                    currentContrib = models.Contributions(lastContrib.version+1, 'in progress',
-                                                   currentPoi, currentField, currentValue)
-                    db.session.add(currentContrib)
-                else:
-                    currentValue = models.Values(value=value)
-                    currentContrib = models.Contributions(1, 'in progress',
+            else:
+                currentField = models.Fields(pos=1, name=key)
+            print('current fields ', currentField, 'key: '+str(key))
+            lastContrib = models.Contributions.query.filter_by(idfield=currentField.id
+                                                               ).filter_by(idpoi=currentPoi.id
+                                                               ).order_by(desc(models.Contributions.version)).first()
+            if(lastContrib):
+                currentValue = models.Values(value=value)
+                currentContrib = models.Contributions(lastContrib.version+1, 'in progress',
                                                currentPoi, currentField, currentValue)
-                    db.session.add(currentContrib)
+                db.session.add(currentContrib)
+            else:
+                currentValue = models.Values(value=value)
+                currentContrib = models.Contributions(1, 'in progress',
+                                           currentPoi, currentField, currentValue)
+                db.session.add(currentContrib)
         db.session.commit()
 
         return jsonify({'poi_id': currentPoi.id, 'field_id': currentField.id, 'field_name': currentField.name,\

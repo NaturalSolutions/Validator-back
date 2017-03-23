@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from .__init__ import routes
 import models  # par defaut python cherche dans le dossier d'où est lancer le script d'entrée
 from app import db
-
+from sqlalchemy import and_, desc
 
 @routes.route('/api/pois', methods=['GET'])
 def returnAllPois():
@@ -140,6 +140,7 @@ def modifyOnePoiFieldValue(idp):
         currentPoi = models.Pois.query.filter_by(id = idp).first()
         if(currentPoi == None):
             raise ValueError('This POI does not exist')
+        print(currentPoi.fields)
     except ValueError:
         resp = jsonify({"error": 'This POI does not exist'})
         resp.status_code = 404
@@ -150,33 +151,36 @@ def modifyOnePoiFieldValue(idp):
 
     try:
         contribExist = 0
+        print(request.json.items())
         for key, value in request.json.items():
-            currentField = models.Fields.query.filter_by(name=key).first()
-
-            allContribs = models.Contributions.query.all()
-            for contrib in allContribs:
-                if(contrib.idpoi == currentPoi.id and contrib.idfield == currentField.id):
-                    contribExist = 1;
-                    lastContrib = contrib;
-
-            if(contribExist):
-                currentValue = models.Values(value=value)
-                currentContrib = models.Contributions(lastContrib.version+1, 'in progress',
+            currFieldslist = list(filter(lambda f: f.name == key, currentPoi.fields))
+            if len(currFieldslist) > 0:
+                currentField = currFieldslist[0]
+                print('current fields ', currentField, 'key: '+str(key))
+                lastContrib = models.Contributions.query.filter_by(idfield=currentField.id
+                                                                   ).filter_by(idpoi=currentPoi.id
+                                                                   ).order_by(desc(models.Contributions.version)).first()
+                if(lastContrib):
+                    currentValue = models.Values(value=value)
+                    currentContrib = models.Contributions(lastContrib.version+1, 'in progress',
+                                                   currentPoi, currentField, currentValue)
+                    db.session.add(currentContrib)
+                else:
+                    currentValue = models.Values(value=value)
+                    currentContrib = models.Contributions(1, 'in progress',
                                                currentPoi, currentField, currentValue)
-                db.session.add(currentContrib)
-            else:
-                currentValue = models.Values(value=value)
-                currentContrib = models.Contributions(1, 'in progress',
-                                           currentPoi, currentField, currentValue)
-                db.session.add(currentContrib)
+                    db.session.add(currentContrib)
         db.session.commit()
 
         return jsonify({'poi_id': currentPoi.id, 'field_id': currentField.id, 'field_name': currentField.name,\
                         'value_id': currentContrib.idvalue, 'value': value,  }), 200
-    except:
-        resp = jsonify({"error": 'Missing required fields or Bad key of entered name fields'})
+    except Exception as e :
+        # from traceback import print_exc
+        # print_exc()
+        resp = jsonify({"error": 'Missing required fields or Bad key of entered name fields'+str(e)})
         resp.status_code = 403
         return resp
+
 
 
 # lancer requete patch : http PATCH http://localhost:5000/api/pois/110 desc=newValue

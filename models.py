@@ -98,7 +98,7 @@ class Pois(db.Model):
     def __init__(self, required, optional):
         fields_list = ['id', 'name', 'version', 'longitude', 'latitude', 'type_id', 'name_en', \
                     'name_fr', 'name_es', 'name_de', 'name_it', 'visit_time_min', 'visit_time_max', \
-                    'price_min', 'price_max', 'street', 'postal_code', 'phone', 'email', 'website', \
+                    'price_min', 'price_max', 'street', 'postal_code', 'phone', 'mail', 'website', \
                     'resa_link', 'url_img1', 'url_img2', 'desc', 'desc_en', 'desc_fr', 'desc_es', 'desc_de',\
                     'desc_it', 'withchild']
 

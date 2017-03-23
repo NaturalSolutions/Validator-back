@@ -16,7 +16,7 @@ def returnAllPois():
         onePoi = models.Pois.query.filter_by(id=ass.idpoi).first()
         if(tempPoi != onePoi):
             tempPoi = onePoi
-            malist.append({'id': onePoi.id, 'tour_id': onePoi.tour_id})
+            malist.append({'id': onePoi.id, 'tour_id': onePoi.tour_id, 'typespois_id': onePoi.typespois_id})
 
         oneField = models.Fields.query.filter_by(id=ass.idfield).first()
         if(tempField != oneField):
@@ -59,7 +59,7 @@ def returnOnepoi(idp):
         onePoi = models.Pois.query.filter_by(id=ass.idpoi).first()
         if(tempPoi != onePoi):
             tempPoi = onePoi
-            malist.append({'id': onePoi.id, 'tour_id': onePoi.tour_id})
+            malist.append({'id': onePoi.id, 'tour_id': onePoi.tour_id, 'typespois_id': onePoi.typespois_id})
 
         oneField = models.Fields.query.filter_by(id=ass.idfield).first()
         if(tempField != oneField):

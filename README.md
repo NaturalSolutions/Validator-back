@@ -8,7 +8,8 @@ environnement :
 ## Création d'un environement python3 
 Flask [http://flask.pocoo.org/docs/0.12/installation/]
 - Cloner le dépôt
-> git clone 
+> git clone https://github.com/NaturalSolutions/Validator-back.git
+
 > cd Validator-back
 
 - Installer Virtualvenv
